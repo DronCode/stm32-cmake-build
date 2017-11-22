@@ -8,3 +8,4 @@ TODO:
 * add windows support
 * add defs for modules
 * add C++ support (C++14 support included)
+* add .LD generator

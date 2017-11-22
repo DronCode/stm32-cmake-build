@@ -1,30 +1,56 @@
 #include "main.h"
 #include "stm32f1xx_hal.h"
 
+#include <tuple>
+
 CRC_HandleTypeDef hcrc;
 
-void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
-static void MX_CRC_Init(void);
+void SystemClock_Config();
+static void MX_GPIO_Init();
+static void MX_CRC_Init();
 
-int main(void)
+// принимает std::tuple произвольного размера
+// возвращает std::pair из двух элементов std::tuple, индексы которых указаны в параметрах шаблона
+template <int idx1, int idx2, typename... Args>
+auto to_pair(std::tuple<Args...> const &t) -> decltype(std::make_pair(std::get<idx1>(t), std::get<idx2>(t)))
+{
+    return std::make_pair(std::get<idx1>(t), std::get<idx2>(t));
+}
+
+class YesThisIsCPP14
+{
+public:
+    using cpp = int;
+
+    void BeginLoop();
+};
+
+void YesThisIsCPP14::BeginLoop() {
+  auto tuple = std::tuple<int, int, int, int, int>(1,3,5,7,9);
+  auto mpair = to_pair<2,4>(tuple);
+
+  while (true)
+  {
+      HAL_Delay(100);
+      HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
+  }
+}
+
+int main()
 {
   HAL_Init();
   SystemClock_Config();
   MX_GPIO_Init();
   MX_CRC_Init();
-  while (1)
-  {
-	HAL_Delay(250);
-	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
-  }
+
+  YesThisIsCPP14 cpp14;
+  cpp14.BeginLoop();
 }
 
 /** System Clock Configuration
 */
 void SystemClock_Config(void)
 {
-
   RCC_OscInitTypeDef RCC_OscInitStruct;
   RCC_ClkInitTypeDef RCC_ClkInitStruct;
 

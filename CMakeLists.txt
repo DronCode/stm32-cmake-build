@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.8)
 
-project(another_test C CXX ASM)
-
+set(TARGET another_test)
+project(${TARGET} C CXX ASM)
 set(CMAKE_CXX_STANDARD 14)
 #
 #   Compiler & Linker
@@ -66,6 +66,10 @@ SET(CMAKE_ASM_FLAGS                     "-mthumb -mcpu=cortex-m3 -x assembler-wi
 SET(CMAKE_EXE_LINKER_FLAGS              "-Wl,--gc-sections -specs=nosys.specs -specs=nano.specs  -mthumb -mcpu=cortex-m3 -mabi=aapcs" CACHE INTERNAL "executable linker flags")
 SET(CMAKE_MODULE_LINKER_FLAGS           "-mthumb -mcpu=cortex-m3 -mabi=aapcs" CACHE INTERNAL "module linker flags")
 SET(CMAKE_SHARED_LINKER_FLAGS           "-mthumb -mcpu=cortex-m3 -mabi=aapcs" CACHE INTERNAL "shared linker flags")
+
+SET(CMAKE_EXE_LINKER_FLAGS              "${CMAKE_EXE_LINKER_FLAGS} -T${CMAKE_CURRENT_SOURCE_DIR}/STM32F103C8Tx_FLASH.ld")
+#todo: create ld generator like https://github.com/ObKo/stm32-cmake/blob/master/cmake/stm32_linker.cmake
+#SET(TARGET_LD_FLAGS "\"-T${CMAKE_CURRENT_BINARY_DIR}/${TARGET}_flash.ld\" ${TARGET_LD_FLAGS}")
 #
 #   Load CMSIS
 set(STM32_CMSIS_SOURCES)
@@ -96,10 +100,38 @@ set(H_SOURCES                           Inc/main.h
                                         Inc/stm32f1xx_it.h)
 set(C_SOURCES                           ${STM32_CMSIS_SOURCES}
                                         ${STM32_HAL_SOURCES}
-                                        Src/main.c
+        Src/main.cpp
                                         Src/stm32f1xx_hal_msp.c
                                         Src/stm32f1xx_it.c
                                         Src/system_stm32f1xx.c)
 file(GLOB                               CXX_SOURCES Src/*.cpp)
 
-add_executable(another_test ${C_SOURCES} ${CXX_SOURCES} ${H_SOURCES} ${ASM_SOURCES})
+IF(EXECUTABLE_OUTPUT_PATH)
+    SET(FILENAME "${EXECUTABLE_OUTPUT_PATH}/${TARGET}")
+ELSE()
+    SET(FILENAME "${CMAKE_BINARY_DIR}/${TARGET}")
+ENDIF()
+
+message("Output: ${FILENAME}")
+
+ADD_EXECUTABLE(${TARGET} ${C_SOURCES} ${CXX_SOURCES} ${H_SOURCES} ${ASM_SOURCES})
+
+#--- out hex
+
+ADD_CUSTOM_COMMAND(
+        TARGET ${TARGET}
+        POST_BUILD
+        COMMAND ${CMAKE_OBJCOPY} -O ihex ${FILENAME} ${FILENAME}.hex
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Build .hex")
+
+#--- out bin
+
+ADD_CUSTOM_COMMAND(
+        TARGET ${TARGET}
+        POST_BUILD
+        COMMAND ${CMAKE_OBJCOPY} -O binary ${FILENAME} ${FILENAME}.bin
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMENT "Build .bin")
+
+message("Build: ${TARGET}")
