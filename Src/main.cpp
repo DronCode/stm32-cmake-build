@@ -14,7 +14,7 @@ int main()
     MX_CRC_Init();
 
     while (true) {
-        HAL_Delay(100);
+        HAL_Delay(50);
         HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_13);
     }
 }

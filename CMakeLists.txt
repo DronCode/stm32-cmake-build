@@ -60,7 +60,7 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY   ONLY)
 SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE   ONLY)
 
 SET(CMAKE_C_FLAGS                       "-mthumb -fno-builtin -mcpu=cortex-m3 -Wall -std=gnu99 -ffunction-sections -fdata-sections -fomit-frame-pointer -mabi=aapcs -fno-unroll-loops -ffast-math -ftree-vectorize" CACHE INTERNAL "c compiler flags")
-SET(CMAKE_CXX_FLAGS                     "-mthumb -fno-builtin -mcpu=cortex-m3 -Wall -std=c++14 -ffunction-sections -fdata-sections -fomit-frame-pointer -mabi=aapcs -fno-unroll-loops -ffast-math -ftree-vectorize" CACHE INTERNAL "cxx compiler flags")
+SET(CMAKE_CXX_FLAGS                     "-mthumb -fno-builtin -mcpu=cortex-m3 -Wall -std=c++14 -ffunction-sections -fdata-sections -fomit-frame-pointer -mabi=aapcs -fno-unroll-loops -ffast-math -ftree-vectorize -Wno-write-strings" CACHE INTERNAL "cxx compiler flags ")
 SET(CMAKE_ASM_FLAGS                     "-mthumb -mcpu=cortex-m3 -x assembler-with-cpp" CACHE INTERNAL "asm compiler flags")
 
 SET(CMAKE_EXE_LINKER_FLAGS              "-Wl,--gc-sections -specs=nosys.specs -specs=nano.specs  -mthumb -mcpu=cortex-m3 -mabi=aapcs" CACHE INTERNAL "executable linker flags")
@@ -72,12 +72,9 @@ SET(CMAKE_EXE_LINKER_FLAGS              "${CMAKE_EXE_LINKER_FLAGS} -T${CMAKE_CUR
 #SET(TARGET_LD_FLAGS "\"-T${CMAKE_CURRENT_BINARY_DIR}/${TARGET}_flash.ld\" ${TARGET_LD_FLAGS}")
 #
 #   Load CMSIS
-set(STM32_CMSIS_SOURCES)
-#set(STM32_CMSIS_SOURCES                 ${PROJECT_SOURCE_DIR}/Drivers/CMSIS/Device/ST/${STM32_CHIP_GROUP}/Source/Templates/gcc/startup_${STM32_CHIP}.s
-#                                       ${PROJECT_SOURCE_DIR}/Drivers/CMSIS/Device/ST/${STM32_CHIP_GROUP}/Source/Templates/system_stm32f1xx.c
-#)
-include_directories(${PROJECT_SOURCE_DIR}/Drivers/CMSIS/Include)
-include_directories(${PROJECT_SOURCE_DIR}/Drivers/CMSIS/Device/ST/${STM32_CHIP_GROUP}/Include)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/Drivers/STM32F1xx/Inc)
+INCLUDE(cmake/CMSIS.cmake)
+ADD_CMSIS()
 #TODO: Add support of DSP Library
 #
 #   HAL
@@ -101,9 +98,9 @@ set(H_SOURCES                           Inc/main.h
 set(C_SOURCES                           ${STM32_CMSIS_SOURCES}
                                         ${STM32_HAL_SOURCES}
         Src/main.cpp
-                                        Src/stm32f1xx_hal_msp.c
-                                        Src/stm32f1xx_it.c
-                                        Src/system_stm32f1xx.c)
+        Src/STM32F1xx/stm32f1xx_hal_msp.c
+        Src/STM32F1xx/stm32f1xx_it.c
+        Src/STM32F1xx/system_stm32f1xx.c)
 file(GLOB                               CXX_SOURCES Src/*.cpp)
 
 IF(EXECUTABLE_OUTPUT_PATH)
