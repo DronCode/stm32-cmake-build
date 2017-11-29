@@ -94,14 +94,13 @@ include_directories(Inc)
 set(ASM_SOURCES                         startup_stm32f103xb.s)
 set(H_SOURCES                           Inc/main.h
                                         Inc/stm32f1xx_hal_conf.h
-                                        Inc/stm32f1xx_it.h)
+        )
 set(C_SOURCES                           ${STM32_CMSIS_SOURCES}
                                         ${STM32_HAL_SOURCES}
-        Src/main.cpp
-        Src/STM32F1xx/stm32f1xx_hal_msp.c
-        Src/STM32F1xx/stm32f1xx_it.c
+                                        Src/main.cpp
+                                        Src/STM32F1xx/stm32f1xx_hal_msp.c
         Src/STM32F1xx/system_stm32f1xx.c)
-file(GLOB                               CXX_SOURCES Src/*.cpp)
+file(GLOB_RECURSE                       CXX_SOURCES Src/*.cpp)
 
 IF(EXECUTABLE_OUTPUT_PATH)
     SET(FILENAME "${EXECUTABLE_OUTPUT_PATH}/${TARGET}")
